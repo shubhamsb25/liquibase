@@ -391,8 +391,8 @@ public class JdbcDatabaseSnapshot extends DatabaseSnapshot {
                     return extract(
                             databaseMetaData.getColumns(
                                     ((AbstractJdbcDatabase) database).getJdbcCatalogName(catalogAndSchema),
-                                    ((AbstractJdbcDatabase) database).getJdbcSchemaName(catalogAndSchema),
-                                    tableName,
+                                    escapeForLike(((AbstractJdbcDatabase) database).getJdbcSchemaName(catalogAndSchema), database),
+                                    escapeForLike(tableName, database),
                                     SQL_FILTER_MATCH_ALL)
                     );
                 } catch (SQLException e) {
@@ -416,8 +416,9 @@ public class JdbcDatabaseSnapshot extends DatabaseSnapshot {
 
                 try {
                     return extract(databaseMetaData.getColumns(((AbstractJdbcDatabase) database)
-                            .getJdbcCatalogName(catalogAndSchema), ((AbstractJdbcDatabase) database)
-                            .getJdbcSchemaName(catalogAndSchema), SQL_FILTER_MATCH_ALL, SQL_FILTER_MATCH_ALL));
+                                    .getJdbcCatalogName(catalogAndSchema),
+                            escapeForLike(((AbstractJdbcDatabase) database).getJdbcSchemaName(catalogAndSchema), database),
+                            SQL_FILTER_MATCH_ALL, SQL_FILTER_MATCH_ALL));
                 } catch (SQLException e) {
                     if (shouldReturnEmptyColumns(e)) {
                         return new ArrayList<>();

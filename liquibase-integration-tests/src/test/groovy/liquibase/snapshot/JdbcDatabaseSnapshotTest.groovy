@@ -7,6 +7,7 @@ import liquibase.extension.testing.testsystem.DatabaseTestSystem
 import liquibase.extension.testing.testsystem.TestSystemFactory
 import liquibase.statement.SqlStatement
 import liquibase.statement.core.RawSqlStatement
+import liquibase.structure.core.Column
 import liquibase.structure.core.Table
 import liquibase.structure.core.View
 import org.junit.Rule
@@ -22,7 +23,7 @@ class JdbcDatabaseSnapshotTest extends Specification {
     public DatabaseTestSystem h2 = Scope.currentScope.getSingleton(TestSystemFactory).getTestSystem("h2")
 
     @Unroll
-    def "getTables and getViews works with underscores in schema names"() {
+    def "getTables, getColumns and getViews works with underscores in schema names"() {
         when:
         def connection = h2.getConnection()
         def db = DatabaseFactory.instance.findCorrectDatabaseImplementation(new JdbcConnection(connection))
@@ -36,6 +37,9 @@ class JdbcDatabaseSnapshotTest extends Specification {
         then:
         SnapshotGeneratorFactory.instance.has(new Table(null, "TEST-SCHEMA", "TEST_TABLE"), db)
         !SnapshotGeneratorFactory.instance.has(new Table(null, "TEST_SCHEMA", "TEST_TABLE"), db)
+
+        SnapshotGeneratorFactory.instance.has(new Column(Table.class,null, "TEST-SCHEMA", "TEST_TABLE", "ID"), db)
+        !SnapshotGeneratorFactory.instance.has(new Column(Table.class, null, "TEST_SCHEMA", "TEST_TABLE","ID"), db)
 
         SnapshotGeneratorFactory.instance.has(new View(null, "TEST-SCHEMA", "TEST_VIEW"), db)
         !SnapshotGeneratorFactory.instance.has(new View(null, "TEST_SCHEMA", "TEST_VIEW"), db)
